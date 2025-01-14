@@ -1,38 +1,26 @@
-import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Linking, Text, TouchableOpacity, View } from "react-native";
 
 import { useNavigation } from "@react-navigation/core";
-import Animated from "react-native-reanimated";
 import { GoBackIcon } from "../../assets/icons/goBackIcon";
+
+import { ImageObject } from "../../app/entities/ImageResponse";
 import { ProfileIcon } from "../../assets/icons/profileIcon";
+import { Container, PhotoTitle } from "./styles";
 
 interface ImageDetailsScreenProps {
   route: { params: {
-    id: string;
-    photoUrl: string;
-    photoTitle: string;
-    photoAuthor: string;
-    photoDescription: string;
-    photoCategory: string;
-    photoLikes: number;
-    authorBio: string;
-    authorPortifolio: string;
-    location: string
+    image: ImageObject
   } }; 
 }
 
 export function ImageDetailsScreen({route}: ImageDetailsScreenProps) {
   const navigation = useNavigation();
+	const image = route.params.image;
+	const isPortfolioNotAvailable = image.user.social.portfolio_url === null || undefined;
 
-	// if (route.params.authorPortifolio === null ? undefined : (
-
-	// ))
-
-  console.log(route);
-  console.log('perfil' ,route.params.authorPortifolio);
-
+	console.log(image);
   return (
-    <ScrollView 
-      style={styles.container}
+    <Container 
       contentContainerStyle={{alignItems: 'center'}}
     >
       <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
@@ -40,30 +28,33 @@ export function ImageDetailsScreen({route}: ImageDetailsScreenProps) {
           <GoBackIcon />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => Linking.openURL(`${route.params.authorPortifolio}`)}>
+        <TouchableOpacity 
+					disabled={isPortfolioNotAvailable}
+					onPress={() => Linking.openURL(`${image.user.social.portfolio_url}`)}
+					style={isPortfolioNotAvailable && ({ opacity: 0.1})}
+				>
          <ProfileIcon/>
         </TouchableOpacity>
       </View>
 
-      <Animated.Image  
-        source={{ uri: route.params.photoUrl }}  
-        style={styles.photo} 
-        sharedTransitionTag={route.params.id}  
+      <Image  
+        source={{ uri: image.urls.small }}  
+        style={{ width: '100%', minWidth: 300, height: 400, borderRadius: 8, marginTop: 10, padding: 20}} 
       />
 
       <View style={{paddingHorizontal: 20, width: '100%'}}>
-        <Text style={styles.photoTitle}>{route.params.photoDescription.toUpperCase() || 'Essa foto não possui descrição'}</Text>
+        <PhotoTitle>{image.description ?? image.alt_description ?? ''}</PhotoTitle>
 
-        <Text style={{color: '#111', fontWeight: '800', marginTop: 4}}>{route.params.photoAuthor}</Text>
+        <Text style={{color: '#111', fontWeight: '800', marginTop: 4}}>{image.user.name}</Text>
         
         <View style={{ marginTop: 20, gap: 8 }}>
-          <Text>{route.params.authorBio || 'Esse perfil não possui biografia'}</Text>
+          <Text>{image.user.bio ?? 'Esse perfil não possui biografia'}</Text>
 
-          <Text>Categoria da foto - {route.params.photoCategory.toUpperCase()}</Text>    
+          <Text>Categoria da foto - {image.asset_type.toUpperCase()?? 'Não possui localização'}</Text>    
 
-          <Text>Localização - {route.params.location || 'Localização desconhecida'}</Text>
+          <Text>Localização - {image?.location?.name || 'Localização desconhecida'}</Text>
 
-          <Text style={{color: '#111', fontWeight: '800'}}>Likes - {route.params.photoLikes || '0'}</Text>
+          <Text style={{color: '#111', fontWeight: '800'}}>Likes - {image.likes || '0'}</Text>
         </View>
         
       </View>
@@ -77,18 +68,6 @@ export function ImageDetailsScreen({route}: ImageDetailsScreenProps) {
           <Text style={{ color: '#222'}}>Buy</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </Container>
   )
 }
-
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#F1F3F5',
-      paddingTop: 80, 
-    },
-    title: { fontSize: 30, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
-    photoContainer: { marginBottom: 15, padding: 20,},
-    photo: { width: '100%', height: 400, borderRadius: 8, marginTop: 10, padding: 20 },
-    photoTitle: { marginTop: 10, fontSize: 18, fontWeight: '600', color: '#111' },
-});
