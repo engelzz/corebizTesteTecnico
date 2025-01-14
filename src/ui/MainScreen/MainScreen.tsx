@@ -1,76 +1,67 @@
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { AuthorName, Container, Title } from "./styles";
 import { useMainScreenController } from "./useMainScreenController";
 
-export function MainScreen() {
-  const {query, setQuery, handleSearch, isFetching, photos, navigation, handleRefecth} = useMainScreenController();
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from "../../app/entities/ScreenTypes";
 
+type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ImageDetailScreen'>;
+type MainScreenRouteProp = RouteProp<RootStackParamList, 'ImageDetailScreen'>;
+
+type Props = {
+  navigation: MainScreenNavigationProp;
+  route: MainScreenRouteProp;
+};
+
+export function MainScreen({ navigation }: Props) {
+  const {query, setQuery, photos, fetchNextPage, refetch, resetPhotos } = useMainScreenController();
   return (
-      <View style={styles.container}>
+      <Container>
         <Text>Welcome!</Text>
   
         <TextInput
           style={{ width: 300 , margin: 10, marginTop: 20 ,padding: 8 , height: 40, backgroundColor: '#CED4DA', borderColor: 'gray', borderWidth: 1, borderRadius: 36, color: '#111'}}
           placeholder="Enter your name"
           placeholderTextColor={'#fff'}
-          value={query}
-          onChangeText={setQuery}
-          onSubmitEditing={handleSearch}
+					value={query}
+					onChangeText={(text) => {
+						setQuery(text)
+					}}
+          onSubmitEditing={() => {
+						resetPhotos()
+						refetch()
+					}}
         />
   
-        {isFetching ? (
-          <ActivityIndicator size='small' color="#000" />
-        ) : (
         <FlatList 
           data={photos}
-          keyExtractor={(item) => item.id}
-          onEndReached={handleRefecth}
+          keyExtractor={(image) => image.id}
+          onEndReached={() => fetchNextPage()}
           onEndReachedThreshold={0.7}
-           renderItem={({ item }) => (
-            <View style={styles.photoContainer}>
+	          renderItem={({ item }) => (
+            <View style={{ padding: 20 }}>
               <TouchableOpacity 
                 onPress={() => navigation.navigate('ImageDetailScreen', {
-                  photoUrl: item.urls.small,
-                  photoAuthor: item.user.name,
-                  photoDescription: item.description || item.alt_description,
-                  photoCategory: item.asset_type,
-                  photoLikes: item.likes,
-                  authorBio: item.user.bio,
-                  authorPortifolio: item.user.portifolio_url,
-                  location: item.user.location
+                  image: item,
                 })}
-                
                 >
-                <Image source={{ uri: item.urls.small }} style={styles.photo} />
+                <Image 
+                  source={{ uri: item.urls.small }} 
+									style={{width: '100%', minWidth: 300, height: 200, borderRadius: 8, marginTop: 10}}
+                />
               </TouchableOpacity>
                
-               <Text numberOfLines={1} style={styles.photoTitle}>{(item.description || item.alt_description).toUpperCase()}</Text>
-               <Text style={styles.photoAuthor}>{item.likes} Likes</Text>
+               <Title 
+							 	numberOfLines={1}
+							 >
+								{(item.description ?? item.alt_description ?? '').toUpperCase()} </Title>
+
+               <AuthorName>{item.likes} Likes</AuthorName>
             </View>
            )}
         />
-      )}
-      </View>
+  
+      </Container>
     );
   }
-  
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#F1F3F5',
-      alignItems: 'center',
-      paddingTop: 80, 
-    },
-    title: { fontSize: 30, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
-    input: {
-      borderWidth: 1,
-      borderColor: '#ccc',
-      padding: 10,
-      borderRadius: 8,
-      marginBottom: 20,
-    },
-    list: { paddingBottom: 20 },
-    photoContainer: { padding: 20,},
-    photo: { width: '100%', minWidth: 300, height: 200, borderRadius: 8, marginTop: 10 },
-    photoTitle: { marginTop: 10, fontSize: 18, fontWeight: '600', color: '#111' },
-    photoAuthor: { fontSize: 12, color: '#222', marginTop: 5, fontWeight: '800' },
-  });
