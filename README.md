@@ -4,7 +4,7 @@ Fiz o uso do React Navigation para fazer o fluxo de rotas, para as requisições
 
 ## Demostration
 
-<img src="https://github.com/engelzz/corebizTesteTecnico/main/src/assets/images/example.png" title="JavaScript"  alt="JavaScript"  width="600"  height="400"/>&nbsp;
+<img src="https://github.com/engelzz/corebizTesteTecnico/blob/main/src/assets/images/example.png" title="APP"  alt="APP"  width="350"  height="600"/>&nbsp;
 
 
 ## API docs
