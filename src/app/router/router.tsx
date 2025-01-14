@@ -2,7 +2,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ImageDetailsScreen } from "../../ui/ImageDetailScreen/ImageDetailsScreen";
 import { MainScreen } from "../../ui/MainScreen/MainScreen";
 
-
 export function Router() {
   const Stack = createNativeStackNavigator();
 
