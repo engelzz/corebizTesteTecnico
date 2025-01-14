@@ -1,11 +1,13 @@
-import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { useNavigation } from "@react-navigation/core";
+import Animated from "react-native-reanimated";
 import { GoBackIcon } from "../../assets/icons/goBackIcon";
 import { ProfileIcon } from "../../assets/icons/profileIcon";
-import { useImageDetailsController } from "./useImageDetailsController";
 
 interface ImageDetailsScreenProps {
   route: { params: {
+    id: string;
     photoUrl: string;
     photoTitle: string;
     photoAuthor: string;
@@ -19,8 +21,14 @@ interface ImageDetailsScreenProps {
 }
 
 export function ImageDetailsScreen({route}: ImageDetailsScreenProps) {
-  const { navigation } = useImageDetailsController();
-  console.log('route', route.params);
+  const navigation = useNavigation();
+
+	// if (route.params.authorPortifolio === null ? undefined : (
+
+	// ))
+
+  console.log(route);
+  console.log('perfil' ,route.params.authorPortifolio);
 
   return (
     <ScrollView 
@@ -37,7 +45,11 @@ export function ImageDetailsScreen({route}: ImageDetailsScreenProps) {
         </TouchableOpacity>
       </View>
 
-      <Image source={{ uri: route.params.photoUrl }} style={styles.photo} />
+      <Animated.Image  
+        source={{ uri: route.params.photoUrl }}  
+        style={styles.photo} 
+        sharedTransitionTag={route.params.id}  
+      />
 
       <View style={{paddingHorizontal: 20, width: '100%'}}>
         <Text style={styles.photoTitle}>{route.params.photoDescription.toUpperCase() || 'Essa foto não possui descrição'}</Text>
@@ -45,9 +57,9 @@ export function ImageDetailsScreen({route}: ImageDetailsScreenProps) {
         <Text style={{color: '#111', fontWeight: '800', marginTop: 4}}>{route.params.photoAuthor}</Text>
         
         <View style={{ marginTop: 20, gap: 8 }}>
-          <Text>{route.params.authorBio}</Text>
+          <Text>{route.params.authorBio || 'Esse perfil não possui biografia'}</Text>
 
-          <Text>Categoria da Foto - {route.params.photoCategory.toUpperCase()}</Text>    
+          <Text>Categoria da foto - {route.params.photoCategory.toUpperCase()}</Text>    
 
           <Text>Localização - {route.params.location || 'Localização desconhecida'}</Text>
 
